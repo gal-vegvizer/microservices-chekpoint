@@ -1,20 +1,15 @@
 const AWS = require('aws-sdk');
 
-// Set dummy credentials for LocalStack
+// Use real AWS config
 AWS.config.update({
-  accessKeyId: 'test',
-  secretAccessKey: 'test',
-  region: 'us-east-2',
-  s3ForcePathStyle: true,
+  region: process.env.AWS_REGION || 'us-east-2',
 });
 
+const sqs = new AWS.SQS();
+const s3 = new AWS.S3();
 
-const sqs = new AWS.SQS({ endpoint: 'http://localstack:4566' });
-const s3 = new AWS.S3({ endpoint: 'http://localstack:4566', s3ForcePathStyle: true });
-
-const queueUrl = 'http://localstack:4566/000000000000/microdemo-queue';
-
-const bucketName = 'demo-bucket';
+const queueUrl = process.env.SQS_QUEUE_URL;
+const bucketName = process.env.S3_BUCKET_NAME;
 
 async function pollSQS() {
   try {

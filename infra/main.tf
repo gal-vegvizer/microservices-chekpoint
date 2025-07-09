@@ -87,9 +87,11 @@ module "ecs_sqs_worker" {
   environment_variables = [
     { name = "AWS_REGION", value = var.aws_region },
     { name = "SQS_QUEUE_URL", value = module.sqs.queue_url },
-    { name = "TOKEN_SECRET", value = module.ssm_parameter.value }
+    { name = "S3_BUCKET_NAME", value = module.s3.bucket },
+    { name = "TOKEN_SECRET", value = module.ssm_parameter.value } # optional, but harmless
   ]
 }
+
 
 module "alb" {
   source       = "./modules/alb"
