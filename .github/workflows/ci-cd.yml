@@ -17,7 +17,6 @@ env:
   ECS_SERVICE_MS1: microdemo-service
   ECS_CLUSTER_MS2: microdemo-ecs-cluster
   ECS_SERVICE_MS2: microdemo-worker-service
-
   
 permissions:
   id-token: write
