@@ -6,6 +6,7 @@ resource "aws_ecs_task_definition" "main" {
   memory                   = "512"
   execution_role_arn       = var.ecs_task_role_arn
   task_role_arn            = var.ecs_task_role_arn
+  
 
   container_definitions = jsonencode([
     {
@@ -29,6 +30,7 @@ resource "aws_ecs_service" "main" {
   task_definition = aws_ecs_task_definition.main.arn
   launch_type     = "FARGATE"
   desired_count   = 1
+  enable_execute_command = true
   network_configuration {
     subnets          = [var.subnet_id]
     assign_public_ip = true
