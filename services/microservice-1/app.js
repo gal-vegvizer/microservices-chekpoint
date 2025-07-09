@@ -32,4 +32,9 @@ app.post('/submit', async (req, res) => {
   }
 });
 
-app.listen(3000, () => console.log('Microservice 1 listening on port 3000'));
+// Health check endpoint for ALB
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
+app.listen(8080, () => console.log('Microservice 1 listening on port 8080'));

@@ -40,7 +40,7 @@ resource "aws_lb_target_group" "main" {
   vpc_id   = var.vpc_id
   target_type = "ip"
   health_check {
-    path                = "/"
+    path                = "/health"
     protocol            = "HTTP"
     matcher             = "200-399"
     interval            = 30
