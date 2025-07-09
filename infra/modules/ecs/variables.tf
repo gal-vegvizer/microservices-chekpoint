@@ -43,3 +43,9 @@ variable "environment_variables" {
   }))
   default = []
 }
+
+variable "ecs_cluster_id" {
+  description = "ID of an existing ECS cluster (optional)."
+  type        = string
+  default     = null
+}

@@ -60,9 +60,15 @@ module "iam" {
   ssm_param_arn = module.ssm_parameter.arn
 }
 
+module "ecs_cluster" {
+  source       = "./modules/ecs_cluster"
+  project_name = var.project_name
+}
+
 module "ecs_api_receiver" {
   source            = "./modules/ecs"
   project_name      = var.project_name
+  ecs_cluster_id    = module.ecs_cluster.cluster_id
   subnet_id         = module.vpc.public_subnet_ids[0]
   ecs_task_role_arn = module.iam.ecs_task_role_arn
   container_image   = var.api_receiver_image
@@ -79,6 +85,7 @@ module "ecs_api_receiver" {
 module "ecs_sqs_worker" {
   source            = "./modules/ecs"
   project_name      = "${var.project_name}-worker"
+  ecs_cluster_id    = module.ecs_cluster.cluster_id
   subnet_id         = module.vpc.public_subnet_ids[1]
   ecs_task_role_arn = module.iam.ecs_task_role_arn
   container_image   = var.sqs_worker_image
@@ -88,7 +95,7 @@ module "ecs_sqs_worker" {
     { name = "AWS_REGION", value = var.aws_region },
     { name = "SQS_QUEUE_URL", value = module.sqs.queue_url },
     { name = "S3_BUCKET_NAME", value = module.s3.bucket_name },
-    { name = "TOKEN_SECRET", value = module.ssm_parameter.value } # optional, but harmless
+    { name = "TOKEN_SECRET", value = module.ssm_parameter.value }
   ]
 }
 
