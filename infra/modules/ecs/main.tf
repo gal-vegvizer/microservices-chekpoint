@@ -1,12 +1,3 @@
-locals {
-  ecs_cluster_id = var.ecs_cluster_id != null ? var.ecs_cluster_id : aws_ecs_cluster.main[0].id
-}
-
-resource "aws_ecs_cluster" "main" {
-  count = var.ecs_cluster_id == null ? 1 : 0
-  name  = "${var.project_name}-ecs-cluster"
-}
-
 resource "aws_ecs_task_definition" "main" {
   family                   = "${var.project_name}-task"
   network_mode             = "awsvpc"
@@ -34,7 +25,7 @@ resource "aws_ecs_task_definition" "main" {
 
 resource "aws_ecs_service" "main" {
   name            = "${var.project_name}-service"
-  cluster         = local.ecs_cluster_id
+  cluster         = var.ecs_cluster_id
   task_definition = aws_ecs_task_definition.main.arn
   launch_type     = "FARGATE"
   desired_count   = 1

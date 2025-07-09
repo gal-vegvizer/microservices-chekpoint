@@ -45,7 +45,6 @@ variable "environment_variables" {
 }
 
 variable "ecs_cluster_id" {
-  description = "ID of an existing ECS cluster (optional)."
+  description = "ID of the ECS cluster where the service will be deployed."
   type        = string
-  default     = null
 }

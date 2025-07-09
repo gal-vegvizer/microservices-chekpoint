@@ -6,7 +6,7 @@ terraform {
       version = ">= 4.0"
     }
   }
-  
+
   backend "s3" {
     bucket         = "terraform-state-bucket-dev2"
     key            = "global/s3/terraform.tfstate"

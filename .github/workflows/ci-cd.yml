@@ -15,7 +15,7 @@ env:
   MS2_REPO: microdemo/microservice-2
   ECS_CLUSTER_MS1: microdemo-ecs-cluster
   ECS_SERVICE_MS1: microdemo-service
-  ECS_CLUSTER_MS2: microdemo-worker-ecs-cluster
+  ECS_CLUSTER_MS2: microdemo-ecs-cluster
   ECS_SERVICE_MS2: microdemo-worker-service
 
   
