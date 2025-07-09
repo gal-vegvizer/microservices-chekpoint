@@ -69,6 +69,11 @@ module "ecs_api_receiver" {
   container_port    = var.api_receiver_port
   security_group_id = module.ecs_api_receiver_sg.ecs_sg_id
   target_group_arn  = module.alb.target_group_arn
+  environment_variables = [
+    { name = "AWS_REGION", value = var.aws_region },
+    { name = "SQS_QUEUE_URL", value = module.sqs.queue_url },
+    { name = "TOKEN_SECRET", value = module.ssm_parameter.value }
+  ]
 }
 
 module "ecs_sqs_worker" {
@@ -79,6 +84,11 @@ module "ecs_sqs_worker" {
   container_image   = var.sqs_worker_image
   container_port    = var.sqs_worker_port
   security_group_id = module.ecs_sqs_worker_sg.ecs_sg_id
+  environment_variables = [
+    { name = "AWS_REGION", value = var.aws_region },
+    { name = "SQS_QUEUE_URL", value = module.sqs.queue_url },
+    { name = "TOKEN_SECRET", value = module.ssm_parameter.value }
+  ]
 }
 
 module "alb" {

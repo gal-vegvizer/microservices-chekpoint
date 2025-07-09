@@ -34,3 +34,12 @@ variable "target_group_arn" {
   type        = string
   default     = null
 }
+
+variable "environment_variables" {
+  description = "Environment variables for the container."
+  type = list(object({
+    name  = string
+    value = string
+  }))
+  default = []
+}

@@ -22,6 +22,7 @@ resource "aws_ecs_task_definition" "main" {
           hostPort      = var.container_port
         }
       ]
+      environment = var.environment_variables
     }
   ])
 }

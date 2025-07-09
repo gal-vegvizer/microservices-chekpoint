@@ -2,27 +2,21 @@ const express = require('express');
 const AWS = require('aws-sdk');
 const bodyParser = require('body-parser');
 
-// Set dummy credentials for LocalStack
-AWS.config.update({
-  accessKeyId: 'test',
-  secretAccessKey: 'test',
-  region: 'us-east-2',
-  s3ForcePathStyle: true,
-});
-
-
 const app = express();
 app.use(bodyParser.json());
 
-const sqs = new AWS.SQS({ endpoint: 'http://localstack:4566' });
-const queueUrl = 'http://localstack:4566/000000000000/microdemo-queue';
+// Use real AWS credentials via ECS IAM role
+AWS.config.update({
+  region: process.env.AWS_REGION || 'us-east-2',
+});
 
+const sqs = new AWS.SQS();
+const queueUrl = process.env.SQS_QUEUE_URL;
 
 app.post('/submit', async (req, res) => {
   const { token, data } = req.body;
 
-  // Basic token validation
-  if (token !== 'SECRET_TOKEN') {
+  if (token !== process.env.TOKEN_SECRET) {
     return res.status(403).send('Invalid token');
   }
 
