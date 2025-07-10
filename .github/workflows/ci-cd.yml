@@ -6,7 +6,8 @@ on:
     paths:
       - 'services/microservice-1/**'
       - 'services/microservice-2/**'
-      - '.github/workflows/ci-cd.yml'
+      
+  workflow_dispatch:
 
 env:
   AWS_REGION: us-east-2
