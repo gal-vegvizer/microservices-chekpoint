@@ -64,23 +64,23 @@ module "ssm_parameter" {
 resource "aws_ssm_parameter" "api_receiver_image" {
   name  = "/microdemo/images/api-receiver"
   type  = "String"
-  value = "139176429165.dkr.ecr.us-east-2.amazonaws.com/microdemo/microservice-1:latest"
+  value = "alpine:latest" # placeholder - will be updated by CI/CD
   overwrite = true
 
-  # lifecycle {
-  #   ignore_changes = [value] # Don't revert CI/CD updates
-  # }
+  lifecycle {
+    ignore_changes = [value] # Don't revert CI/CD updates
+  }
 }
 
 resource "aws_ssm_parameter" "sqs_worker_image" {
   name  = "/microdemo/images/sqs-worker"
   type  = "String"
-  value = "139176429165.dkr.ecr.us-east-2.amazonaws.com/microdemo/microservice-2:latest"
+  value = "alpine:latest" # placeholder - will be updated by CI/CD
   overwrite = true
 
-  # lifecycle {
-  #   ignore_changes = [value] # Don't revert CI/CD updates
-  # }
+  lifecycle {
+    ignore_changes = [value] # Don't revert CI/CD updates
+  }
 }
 
 module "ecr" {

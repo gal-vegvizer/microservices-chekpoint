@@ -75,10 +75,75 @@ jobs:
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.5.7
+          
       - name: Terraform Apply using SSM parameters
         working-directory: ./infra
         run: |
           terraform init -reconfigure
           terraform apply -auto-approve
+
+      - name: Force ECS service updates to pick up new images
+        run: |
+          echo "🔄 Forcing ECS service deployments to use updated images..."
+          
+          # Force new deployments to pick up the updated SSM parameter values
+          aws ecs update-service --cluster $ECS_CLUSTER_MS1 --service $ECS_SERVICE_MS1 --force-new-deployment --region $AWS_REGION
+          aws ecs update-service --cluster $ECS_CLUSTER_MS2 --service $ECS_SERVICE_MS2 --force-new-deployment --region $AWS_REGION
+          
+          echo "⏳ Waiting for services to stabilize..."
+          # Wait for deployments to complete successfully
+          aws ecs wait services-stable --cluster $ECS_CLUSTER_MS1 --services $ECS_SERVICE_MS1 --region $AWS_REGION &
+          aws ecs wait services-stable --cluster $ECS_CLUSTER_MS2 --services $ECS_SERVICE_MS2 --region $AWS_REGION &
+          wait
+          
+          echo "✅ Both services have been successfully deployed with new images!"
+
+      - name: Verify deployment success
+        run: |
+          echo "🔍 Verifying deployment..."
+          
+          # Check that services are running the correct image versions
+          API_IMAGE=$(aws ecs describe-task-definition --task-definition microdemo-task --region $AWS_REGION --query 'taskDefinition.containerDefinitions[0].image' --output text)
+          WORKER_IMAGE=$(aws ecs describe-task-definition --task-definition microdemo-worker-task --region $AWS_REGION --query 'taskDefinition.containerDefinitions[0].image' --output text)
+          
+          echo "📦 API Receiver using image: $API_IMAGE"
+          echo "📦 SQS Worker using image: $WORKER_IMAGE"
+          
+          # Verify images contain the current commit SHA
+          if [[ "$API_IMAGE" == *"${{ github.sha }}"* ]] && [[ "$WORKER_IMAGE" == *"${{ github.sha }}"* ]]; then
+            echo "✅ SUCCESS: Both services are using images tagged with commit ${{ github.sha }}"
+          else
+            echo "❌ ERROR: Services are not using the expected image tags"
+            exit 1
+          fi
+
+      - name: Health check verification
+        run: |
+          echo "🏥 Performing health checks..."
+          
+          # Get ALB DNS name
+          ALB_DNS=$(aws elbv2 describe-load-balancers --names microdemo-alb --region $AWS_REGION --query 'LoadBalancers[0].DNSName' --output text)
+          
+          # Wait a bit for services to be ready
+          echo "⏳ Waiting for services to be ready..."
+          sleep 30
+          
+          # Test health endpoint
+          for i in {1..5}; do
+            if curl -f -s "http://$ALB_DNS/health" > /dev/null; then
+              echo "✅ Health check passed on attempt $i"
+              break
+            else
+              echo "⚠️ Health check failed on attempt $i, retrying in 10 seconds..."
+              sleep 10
+            fi
+            
+            if [ $i -eq 5 ]; then
+              echo "❌ Health check failed after 5 attempts"
+              exit 1
+            fi
+          done
+          
+          echo "🎉 Deployment verification completed successfully!"
 
   
