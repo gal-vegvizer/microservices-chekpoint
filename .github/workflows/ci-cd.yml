@@ -13,9 +13,8 @@ env:
   ECR_REGISTRY: 139176429165.dkr.ecr.us-east-2.amazonaws.com
   MS1_REPO: microdemo/microservice-1
   MS2_REPO: microdemo/microservice-2
-  ECS_CLUSTER_MS1: microdemo-ecs-cluster
+  ECS_CLUSTER_MS: microdemo-ecs-cluster
   ECS_SERVICE_MS1: microdemo-service
-  ECS_CLUSTER_MS2: microdemo-ecs-cluster
   ECS_SERVICE_MS2: microdemo-worker-service
   
 permissions:
@@ -87,13 +86,13 @@ jobs:
           echo "🔄 Forcing ECS service deployments to use updated images..."
           
           # Force new deployments to pick up the updated SSM parameter values
-          aws ecs update-service --cluster $ECS_CLUSTER_MS1 --service $ECS_SERVICE_MS1 --force-new-deployment --region $AWS_REGION
-          aws ecs update-service --cluster $ECS_CLUSTER_MS2 --service $ECS_SERVICE_MS2 --force-new-deployment --region $AWS_REGION
+          aws ecs update-service --cluster $ECS_CLUSTER_MS --service $ECS_SERVICE_MS1 --force-new-deployment --region $AWS_REGION
+          aws ecs update-service --cluster $ECS_CLUSTER_MS --service $ECS_SERVICE_MS2 --force-new-deployment --region $AWS_REGION
           
           echo "⏳ Waiting for services to stabilize..."
           # Wait for deployments to complete successfully
-          aws ecs wait services-stable --cluster $ECS_CLUSTER_MS1 --services $ECS_SERVICE_MS1 --region $AWS_REGION &
-          aws ecs wait services-stable --cluster $ECS_CLUSTER_MS2 --services $ECS_SERVICE_MS2 --region $AWS_REGION &
+          aws ecs wait services-stable --cluster $ECS_CLUSTER_MS --services $ECS_SERVICE_MS1 --region $AWS_REGION &
+          aws ecs wait services-stable --cluster $ECS_CLUSTER_MS --services $ECS_SERVICE_MS2 --region $AWS_REGION &
           wait
           
           echo "✅ Both services have been successfully deployed with new images!"
