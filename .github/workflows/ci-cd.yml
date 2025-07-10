@@ -61,18 +61,22 @@ jobs:
           aws ecr start-image-scan --repository-name $MS1_REPO --image-id imageTag=latest || true
           aws ecr start-image-scan --repository-name $MS2_REPO --image-id imageTag=latest || true
 
-      - name: Write image URIs to file
+      - name: Update SSM Parameters with image URIs
         run: |
-          echo "${ECR_REGISTRY}/${MS1_REPO}:${{ github.sha }}" > ./infra/api-receiver-image.txt
-          echo "${ECR_REGISTRY}/${MS2_REPO}:${{ github.sha }}" > ./infra/sqs-worker-image.txt
+          aws ssm put-parameter --name "/microdemo/images/api-receiver" \
+            --value "${ECR_REGISTRY}/${MS1_REPO}:${{ github.sha }}" \
+            --type String --overwrite
+
+          aws ssm put-parameter --name "/microdemo/images/sqs-worker" \
+            --value "${ECR_REGISTRY}/${MS2_REPO}:${{ github.sha }}" \
+            --type String --overwrite
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.5.7
 
-
-      - name: Terraform Apply using image files
+      - name: Terraform Apply using SSM parameters
         working-directory: ./infra
         run: |
           terraform init -reconfigure

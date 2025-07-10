@@ -20,9 +20,17 @@ provider "aws" {
   region = var.aws_region
 }
 
+data "aws_ssm_parameter" "api_receiver_image" {
+  name = "/microdemo/images/api-receiver"
+}
+
+data "aws_ssm_parameter" "sqs_worker_image" {
+  name = "/microdemo/images/sqs-worker"
+}
+
 locals {
-  api_receiver_image_final = var.api_receiver_image != "" ? var.api_receiver_image : chomp(file("${path.module}/api-receiver-image.txt"))
-  sqs_worker_image_final   = var.sqs_worker_image != "" ? var.sqs_worker_image : chomp(file("${path.module}/sqs-worker-image.txt"))
+  api_receiver_image_final = var.api_receiver_image != "" ? var.api_receiver_image : data.aws_ssm_parameter.api_receiver_image.value
+  sqs_worker_image_final   = var.sqs_worker_image != "" ? var.sqs_worker_image : data.aws_ssm_parameter.sqs_worker_image.value
 }
 
 module "vpc" {
@@ -50,6 +58,27 @@ module "ssm_parameter" {
   name         = var.ssm_token_name
   value        = var.ssm_token_value
   project_name = var.project_name
+}
+
+# Initialize SSM parameters for image URIs (will be updated by CI/CD)
+resource "aws_ssm_parameter" "api_receiver_image" {
+  name  = "/microdemo/images/api-receiver"
+  type  = "String"
+  value = "alpine:latest" # placeholder - will be updated by CI/CD
+
+  lifecycle {
+    ignore_changes = [value] # Don't revert CI/CD updates
+  }
+}
+
+resource "aws_ssm_parameter" "sqs_worker_image" {
+  name  = "/microdemo/images/sqs-worker"
+  type  = "String"
+  value = "alpine:latest" # placeholder - will be updated by CI/CD
+
+  lifecycle {
+    ignore_changes = [value] # Don't revert CI/CD updates
+  }
 }
 
 module "ecr" {
