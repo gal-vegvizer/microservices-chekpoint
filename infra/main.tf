@@ -64,23 +64,23 @@ module "ssm_parameter" {
 resource "aws_ssm_parameter" "api_receiver_image" {
   name  = "/microdemo/images/api-receiver"
   type  = "String"
-  value = "alpine:latest" # placeholder - will be updated by CI/CD
+  value = "139176429165.dkr.ecr.us-east-2.amazonaws.com/microdemo/microservice-1:latest"
   overwrite = true
 
-  lifecycle {
-    ignore_changes = [value] # Don't revert CI/CD updates
-  }
+  # lifecycle {
+  #   ignore_changes = [value] # Don't revert CI/CD updates
+  # }
 }
 
 resource "aws_ssm_parameter" "sqs_worker_image" {
   name  = "/microdemo/images/sqs-worker"
   type  = "String"
-  value = "alpine:latest" # placeholder - will be updated by CI/CD
+  value = "139176429165.dkr.ecr.us-east-2.amazonaws.com/microdemo/microservice-2:latest"
   overwrite = true
 
-  lifecycle {
-    ignore_changes = [value] # Don't revert CI/CD updates
-  }
+  # lifecycle {
+  #   ignore_changes = [value] # Don't revert CI/CD updates
+  # }
 }
 
 module "ecr" {
@@ -145,10 +145,11 @@ module "alb" {
 }
 
 module "ecs_api_receiver_sg" {
-  source       = "./modules/security_group"
-  project_name = var.project_name
-  vpc_id       = module.vpc.vpc_id
-  ingress_port = var.api_receiver_port
+  source                = "./modules/security_group"
+  project_name          = var.project_name
+  vpc_id                = module.vpc.vpc_id
+  ingress_port          = var.api_receiver_port
+  alb_security_group_id = module.alb.alb_security_group_id
 }
 
 module "ecs_sqs_worker_sg" {

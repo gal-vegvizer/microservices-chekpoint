@@ -1,3 +1,12 @@
+resource "aws_cloudwatch_log_group" "ecs" {
+  name              = "/ecs/${var.project_name}"
+  retention_in_days = 7
+  
+  tags = {
+    Name = "${var.project_name}-log-group"
+  }
+}
+
 resource "aws_ecs_task_definition" "main" {
   family                   = "${var.project_name}-task"
   network_mode             = "awsvpc"
@@ -16,10 +25,18 @@ resource "aws_ecs_task_definition" "main" {
       portMappings = [
         {
           containerPort = var.container_port
-          hostPort      = var.container_port
+          protocol      = "tcp"
         }
       ]
       environment = var.environment_variables
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = "/ecs/${var.project_name}"
+          "awslogs-region"        = "us-east-2"
+          "awslogs-stream-prefix" = "ecs"
+        }
+      }
     }
   ])
 }

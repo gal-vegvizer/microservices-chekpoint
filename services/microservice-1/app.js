@@ -16,8 +16,26 @@ const queueUrl = process.env.SQS_QUEUE_URL;
 app.post('/submit', async (req, res) => {
   const { token, data } = req.body;
 
+  // Validate token
   if (token !== process.env.TOKEN_SECRET) {
     return res.status(403).send('Invalid token');
+  }
+
+  // Validate required data fields
+  if (!data || !data.email_sender || !data.email_subject || !data.email_timestream) {
+    return res.status(400).send('Missing required fields: email_sender, email_subject, email_timestream');
+  }
+
+  // Validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(data.email_sender)) {
+    return res.status(400).send('Invalid email format');
+  }
+
+  // Validate email_timestream format (ISO 8601)
+  const timestreamRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?$/;
+  if (!timestreamRegex.test(data.email_timestream)) {
+    return res.status(400).send('Invalid timestream format. Expected ISO 8601 format (YYYY-MM-DDTHH:mm:ssZ)');
   }
 
   try {
@@ -37,4 +55,4 @@ app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
 
-app.listen(8080, () => console.log('Microservice 1 listening on port 8080'));
+app.listen(8080, '0.0.0.0', () => console.log('Microservice 1 listening on port 8080'));

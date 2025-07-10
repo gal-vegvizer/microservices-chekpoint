@@ -42,6 +42,7 @@ resource "aws_lb_target_group" "main" {
   health_check {
     path                = "/health"
     protocol            = "HTTP"
+    port                = "traffic-port"
     matcher             = "200-399"
     interval            = 30
     timeout             = 5
@@ -55,8 +56,9 @@ resource "aws_lb_target_group" "main" {
 
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.main.arn
-  port              = 80
+  port              = "80"
   protocol          = "HTTP"
+  
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.main.arn
@@ -69,4 +71,8 @@ output "alb_dns_name" {
 
 output "target_group_arn" {
   value = aws_lb_target_group.main.arn
+}
+
+output "alb_security_group_id" {
+  value = aws_security_group.alb.id
 }

@@ -42,6 +42,12 @@ resource "aws_iam_role_policy_attachment" "ecs_task_policy_attach" {
   policy_arn = aws_iam_policy.ecs_task_policy.arn
 }
 
+# Attach AWS managed policy for ECS task execution (includes ECR and CloudWatch Logs permissions)
+resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
+  role       = aws_iam_role.ecs_task_execution.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
 output "ecs_task_role_arn" {
   value = aws_iam_role.ecs_task_execution.arn
 }
