@@ -65,6 +65,7 @@ resource "aws_ssm_parameter" "api_receiver_image" {
   name  = "/microdemo/images/api-receiver"
   type  = "String"
   value = "alpine:latest" # placeholder - will be updated by CI/CD
+  overwrite = true
 
   lifecycle {
     ignore_changes = [value] # Don't revert CI/CD updates
@@ -75,6 +76,7 @@ resource "aws_ssm_parameter" "sqs_worker_image" {
   name  = "/microdemo/images/sqs-worker"
   type  = "String"
   value = "alpine:latest" # placeholder - will be updated by CI/CD
+  overwrite = true
 
   lifecycle {
     ignore_changes = [value] # Don't revert CI/CD updates
