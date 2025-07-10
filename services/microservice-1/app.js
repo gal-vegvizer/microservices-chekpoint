@@ -52,7 +52,13 @@ app.post('/submit', async (req, res) => {
 
 // Health check endpoint for ALB
 app.get('/health', (req, res) => {
-  res.status(200).send('OK');
+  res.status(200).json({
+    status: 'OK',
+    service: 'api-receiver',
+    version: 'v2.0.0',
+    timestamp: new Date().toISOString(),
+    deployment_id: 'deploy-2024-001'
+  });
 });
 
 app.listen(8080, '0.0.0.0', () => console.log('Microservice 1 listening on port 8080'));
