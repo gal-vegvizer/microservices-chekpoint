@@ -5,6 +5,10 @@ terraform {
       source  = "hashicorp/aws"
       version = ">= 4.0"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = ">= 3.0"
+    }
   }
 
   backend "s3" {
@@ -53,10 +57,21 @@ module "sqs" {
   sqs_queue_name = var.sqs_queue_name
 }
 
+# Generate a secure API token
+resource "random_password" "api_token" {
+  length  = 32
+  special = true
+  upper   = true
+  lower   = true
+  numeric = true
+  # Exclude characters that might cause issues in HTTP headers or JSON
+  override_special = "!@#$%^&*()-_=+[]{}|;:,.<>?"
+}
+
 module "ssm_parameter" {
   source       = "./modules/ssm_parameter"
   name         = var.ssm_token_name
-  value        = var.ssm_token_value
+  value        = var.ssm_token_value != null ? var.ssm_token_value : random_password.api_token.result
   project_name = var.project_name
 }
 

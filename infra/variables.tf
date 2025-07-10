@@ -47,9 +47,10 @@ variable "ssm_token_name" {
 }
 
 variable "ssm_token_value" {
-  description = "Value for the API token stored in SSM"
+  description = "Value for the API token stored in SSM (use random.password for secure generation)"
   type        = string
-  default     = "changeme-token"
+  default     = null # Will be generated securely using random provider
+  sensitive   = true
 }
 
 variable "api_receiver_image" {
