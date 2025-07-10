@@ -26,10 +26,14 @@ provider "aws" {
 
 data "aws_ssm_parameter" "api_receiver_image" {
   name = "/microdemo/images/api-receiver"
+  
+  depends_on = [aws_ssm_parameter.api_receiver_image]
 }
 
 data "aws_ssm_parameter" "sqs_worker_image" {
   name = "/microdemo/images/sqs-worker"
+  
+  depends_on = [aws_ssm_parameter.sqs_worker_image]
 }
 
 locals {
