@@ -278,12 +278,6 @@ After successful deployment, you should have:
 - ✅ **Infrastructure Stability**: `terraform plan` shows no changes
 - ✅ **Monitoring**: CloudWatch logs show application activity
 
-## 📈 Performance & Scaling
-
-- **Auto Scaling**: ECS services scale based on CPU/memory utilization
-- **Load Balancing**: ALB distributes traffic across healthy instances
-- **Health Checks**: Automatic replacement of unhealthy containers
-- **Resource Limits**: CPU and memory limits prevent resource exhaustion
 
 ## 🔐 Security Features
 
@@ -293,25 +287,3 @@ After successful deployment, you should have:
 - **Token Authentication**: Cryptographically secure API tokens
 - **Input Validation**: Comprehensive data validation and sanitization
 
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📞 Support
-
-For support and questions:
-- Review the documentation in the `docs/` directory
-- Check the troubleshooting section above
-- Open an issue in the GitHub repository
-
----
-
-**🎉 Ready to deploy? Follow the Quick Start Guide above!**
