@@ -53,11 +53,12 @@ app.post('/submit', async (req, res) => {
 // Health check endpoint for ALB
 app.get('/health', (req, res) => {
   res.status(200).json({
-    status: 'OK',
+    status: 'HEALTHY_V3',
     service: 'api-receiver',
-    version: 'v2.0.0',
+    version: 'v3.0.0',
     timestamp: new Date().toISOString(),
-    deployment_id: 'deploy-2024-001'
+    deployment_id: 'cicd-test-2025-07-10',
+    message: 'CI/CD Pipeline Test - New Image Deployed Successfully!'
   });
 });
 
