@@ -57,10 +57,7 @@ jobs:
 
     - name: Terraform Plan
       run: |
-        terraform plan \
-          -var="api_receiver_image=nginx:alpine" \
-          -var="sqs_worker_image=nginx:alpine" \
-          -out=tfplan
+        terraform plan -out=tfplan
       env:
         TF_IN_AUTOMATION: true
 
