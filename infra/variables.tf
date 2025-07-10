@@ -55,7 +55,7 @@ variable "ssm_token_value" {
 variable "api_receiver_image" {
   description = "Docker image for the API receiver"
   type        = string
-  default     = chomp(file("${path.module}/api-receiver-image.txt"))
+  default     = "" # empty fallback — we'll set real value in locals
 }
 
 variable "api_receiver_port" {
@@ -67,7 +67,7 @@ variable "api_receiver_port" {
 variable "sqs_worker_image" {
   description = "Docker image for the SQS worker"
   type        = string
-  default     = chomp(file("${path.module}/sqs-worker-image.txt"))
+  default     = ""
 }
 
 variable "sqs_worker_port" {
