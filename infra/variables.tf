@@ -53,8 +53,9 @@ variable "ssm_token_value" {
 }
 
 variable "api_receiver_image" {
-  description = "Docker image for the API receiver microservice."
+  description = "Docker image for the API receiver"
   type        = string
+  default     = chomp(file("${path.module}/api-receiver-image.txt"))
 }
 
 variable "api_receiver_port" {
@@ -64,8 +65,9 @@ variable "api_receiver_port" {
 }
 
 variable "sqs_worker_image" {
-  description = "Docker image for the SQS worker microservice."
+  description = "Docker image for the SQS worker"
   type        = string
+  default     = chomp(file("${path.module}/sqs-worker-image.txt"))
 }
 
 variable "sqs_worker_port" {

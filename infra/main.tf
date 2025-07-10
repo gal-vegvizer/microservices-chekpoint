@@ -20,6 +20,11 @@ provider "aws" {
   region = var.aws_region
 }
 
+locals {
+  api_receiver_image_safe = var.api_receiver_image != "" ? var.api_receiver_image : error("Missing image for API receiver.")
+  sqs_worker_image_safe   = var.sqs_worker_image != "" ? var.sqs_worker_image : error("Missing image for SQS worker.")
+}
+
 module "vpc" {
   source              = "./modules/vpc"
   project_name        = var.project_name
@@ -71,7 +76,7 @@ module "ecs_api_receiver" {
   ecs_cluster_id    = module.ecs_cluster.cluster_id
   subnet_id         = module.vpc.public_subnet_ids[0]
   ecs_task_role_arn = module.iam.ecs_task_role_arn
-  container_image   = var.api_receiver_image
+  container_image   = local.api_receiver_image_safe
   container_port    = var.api_receiver_port
   security_group_id = module.ecs_api_receiver_sg.ecs_sg_id
   target_group_arn  = module.alb.target_group_arn
@@ -88,7 +93,7 @@ module "ecs_sqs_worker" {
   ecs_cluster_id    = module.ecs_cluster.cluster_id
   subnet_id         = module.vpc.public_subnet_ids[1]
   ecs_task_role_arn = module.iam.ecs_task_role_arn
-  container_image   = var.sqs_worker_image
+  container_image   = local.sqs_worker_image_safe
   container_port    = var.sqs_worker_port
   security_group_id = module.ecs_sqs_worker_sg.ecs_sg_id
   environment_variables = [

@@ -23,9 +23,9 @@ permissions:
   contents: read
 
 jobs:
-  ### CI JOB - Microservice 1
-  build-ms1:
-    name: Build & Push Microservice 1
+  ### CI JOB - Build Both Microservices
+  build-microservices:
+    name: Build & Push Both Microservices
     runs-on: ubuntu-latest
 
     steps:
@@ -40,97 +40,40 @@ jobs:
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build and push Docker image
+      - name: Build and push Microservice 1
         run: |
           # Build with both latest and commit SHA tags
           docker build -t $ECR_REGISTRY/$MS1_REPO:latest -t $ECR_REGISTRY/$MS1_REPO:${{ github.sha }} ./services/microservice-1
           docker push $ECR_REGISTRY/$MS1_REPO:latest
           docker push $ECR_REGISTRY/$MS1_REPO:${{ github.sha }}
         
-      - name: Scan image for vulnerabilities
-        run: |
-          # Use AWS ECR image scanning
-          aws ecr start-image-scan --repository-name $MS1_REPO --image-id imageTag=latest || true
-
-  ### CD JOB - Microservice 1
-  deploy-ms1:
-    name: Deploy Microservice 1
-    needs: build-ms1
-    runs-on: ubuntu-latest
-    if: success() && needs.build-ms1.result == 'success'
-
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          role-to-assume: arn:aws:iam::139176429165:role/GitHubActionsOIDCRole
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Update ECS service
-        run: |
-          aws ecs update-service \
-            --cluster ${{ env.ECS_CLUSTER_MS1 }} \
-            --service ${{ env.ECS_SERVICE_MS1 }} \
-            --force-new-deployment
-          
-          # Wait for deployment to complete
-          aws ecs wait services-stable \
-            --cluster ${{ env.ECS_CLUSTER_MS1 }} \
-            --services ${{ env.ECS_SERVICE_MS1 }}
-
-  ### CI JOB - Microservice 2
-  build-ms2:
-    name: Build & Push Microservice 2
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          role-to-assume: arn:aws:iam::139176429165:role/GitHubActionsOIDCRole
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Login to Amazon ECR
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Build and push Docker image
+      - name: Build and push Microservice 2
         run: |
           # Build with both latest and commit SHA tags
           docker build -t $ECR_REGISTRY/$MS2_REPO:latest -t $ECR_REGISTRY/$MS2_REPO:${{ github.sha }} ./services/microservice-2
           docker push $ECR_REGISTRY/$MS2_REPO:latest
           docker push $ECR_REGISTRY/$MS2_REPO:${{ github.sha }}
-        
-      - name: Scan image for vulnerabilities
+
+      - name: Scan images for vulnerabilities
         run: |
           # Use AWS ECR image scanning
+          aws ecr start-image-scan --repository-name $MS1_REPO --image-id imageTag=latest || true
           aws ecr start-image-scan --repository-name $MS2_REPO --image-id imageTag=latest || true
 
-  ### CD JOB - Microservice 2
-  deploy-ms2:
-    name: Deploy Microservice 2
-    needs: build-ms2
-    runs-on: ubuntu-latest
-    if: success() && needs.build-ms2.result == 'success'
-
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          role-to-assume: arn:aws:iam::139176429165:role/GitHubActionsOIDCRole
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Update ECS service
+      - name: Write image URIs to file
         run: |
-          aws ecs update-service \
-            --cluster ${{ env.ECS_CLUSTER_MS2 }} \
-            --service ${{ env.ECS_SERVICE_MS2 }} \
-            --force-new-deployment
-          
-          # Wait for deployment to complete
-          aws ecs wait services-stable \
-            --cluster ${{ env.ECS_CLUSTER_MS2 }} \
-            --services ${{ env.ECS_SERVICE_MS2 }}
+          echo "${ECR_REGISTRY}/${MS1_REPO}:${{ github.sha }}" > ./infra/api-receiver-image.txt
+          echo "${ECR_REGISTRY}/${MS2_REPO}:${{ github.sha }}" > ./infra/sqs-worker-image.txt
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.7
+
+      - name: Terraform Apply using image files
+        working-directory: ./infra
+        run: |
+          terraform init -reconfigure
+          terraform apply -auto-approve
 
   
