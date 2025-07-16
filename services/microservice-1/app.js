@@ -58,7 +58,7 @@ app.get('/health', (req, res) => {
     version: 'v3.0.0',
     timestamp: new Date().toISOString(),
     deployment_id: 'cicd-test-2025-07-10',
-    message: 'CI/CD Pipeline Test - New Image Deployed Successfully!'
+    message: 'CI/CD Pipeline Test - New Image Deployed Successfully!2'
   });
 });
 
