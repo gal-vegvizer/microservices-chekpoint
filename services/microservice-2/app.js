@@ -36,7 +36,7 @@ async function pollSQS() {
         ReceiptHandle: message.ReceiptHandle
       }).promise();
 
-      console.log(`Processed and stored message to S3 as ${s3Key}`);
+      console.log(`Processed and stored message to S3 as test ${s3Key}`);
     }
   } catch (error) {
     console.error('Error processing message:', error);
